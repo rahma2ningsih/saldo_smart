@@ -1,28 +1,43 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
-#
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
+name: my_pml
+description: "A new Flutter project."
 
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
-include: package:flutter_lints/flutter.yaml
+publish_to: "none"
 
-linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
-  rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+version: 1.0.0+1
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+environment:
+  sdk: ">=3.4.4 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.6
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+  go_router: ^14.2.1
+  appwrite: ^12.0.0
+  flutter_dotenv: ^5.1.0
+  google_fonts: ^6.2.1
+  flutter_native_splash: ^2.4.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+  riverpod_generator: ^2.4.0
+  build_runner: ^2.4.11
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.10
+  json_serializable: ^6.8.0
+  freezed: ^2.5.2
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/.env
+
