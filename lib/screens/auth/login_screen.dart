@@ -17,11 +17,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _passwordVisible = ValueNotifier<bool>(false);
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _passwordVisible.dispose();
     super.dispose();
   }
 
@@ -38,72 +40,124 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     return Scaffold(
-      //appBar: AppBar(title: const Text('Login')),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 50),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Image(
-                    image: AssetImage('assets/images/logo-nginepin.png'),
-                    width: 100,
-                    height: 100,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                CustomTextFormField(
-                  controller: _emailController,
-                  labelText: 'Email',
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) => ValidationHelper.validateEmail(value),
-                ),
-                const SizedBox(height: 16),
-                CustomTextFormField(
-                  controller: _passwordController,
-                  labelText: 'Password',
-                  obscureText: true,
-                  validator: (value) =>
-                      ValidationHelper.validateNotEmpty(value, 'Password'),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: authState.isLoading
-                      ? null
-                      : () {
-                          if (_formKey.currentState!.validate()) {
-                            _formKey.currentState!.save();
-                            ref.read(authProvider.notifier).login(
-                                  _emailController.text,
-                                  _passwordController.text,
-                                );
-                          }
+      appBar: AppBar(
+        title: const Text(
+          'Login',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        scrolledUnderElevation: 0.0,
+        elevation: 0.0,
+        automaticallyImplyLeading: false,
+              ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Center(
+                        child: Column(
+                          children: [
+                            Icon(Icons.store, size: 80, color: Colors.red),
+                            SizedBox(height: 8),
+                            Text(
+                              'SaldoSmart',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      CustomTextFormField(
+                        controller: _emailController,
+                        labelText: 'Email',
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) =>
+                            ValidationHelper.validateEmail(value),
+                      ),
+                      const SizedBox(height: 16),
+                      ValueListenableBuilder<bool>(
+                        valueListenable: _passwordVisible,
+                        builder: (context, isVisible, child) {
+                          return CustomTextFormField(
+                            controller: _passwordController,
+                            labelText: 'Password',
+                            obscureText: !isVisible,
+                            suffixIcon: IconButton(
+                              icon: Icon(isVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off),
+                              onPressed: () =>
+                                  _passwordVisible.value = !isVisible,
+                            ),
+                            validator: (value) => ValidationHelper.validateNotEmpty(
+                                value, 'Password'),
+                          );
                         },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: authState.isLoading
+                            ? null
+                            : () {
+                                if (_formKey.currentState!.validate()) {
+                                  _formKey.currentState!.save();
+                                  ref.read(authProvider.notifier).login(
+                                        _emailController.text,
+                                        _passwordController.text,
+                                      );
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                        ),
+                        child: authState.isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'MASUK',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: () => context.go('/register'),
+                        child: const Text(
+                          'Belum punya akun? Daftar sekarang',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ],
                   ),
-                  child: authState.isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(),
-                        )
-                      : const Text('Login'),
                 ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () => context.push('/register'),
-                  child: const Text('Don\'t have an account? Register'),
-                ),
-              ],
+              ),
             ),
           ),
         ),
