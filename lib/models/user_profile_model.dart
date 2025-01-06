@@ -14,11 +14,12 @@ class UserProfile with _$UserProfile {
     required String kota,                      
     required String provinsi,                 
     required String kodePos,                  
-    required String logo,
+    required String logo,                      
   }) = _UserProfile;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) =>
       _$UserProfileFromJson(json);
+
 }
 
 Map<String, dynamic> toJsonForCreate(UserProfile profile) {

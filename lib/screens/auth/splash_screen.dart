@@ -29,15 +29,14 @@ class SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/logo-nginepin.png',
-                width: 150, height: 150),
-            const SizedBox(height: 24),
-            const CircularProgressIndicator(),
+            Icon(Icons.store, color:Colors.blue),
+            SizedBox(height: 24),
+            CircularProgressIndicator(),
           ],
         ),
       ),

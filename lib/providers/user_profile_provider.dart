@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../services/user_profile_service.dart';
 import '../models/user_profile_model.dart';
 import '../utils/provider.dart';
+import 'auth_provider.dart';
 
 part 'user_profile_provider.g.dart';
 
@@ -12,7 +13,16 @@ class UserProfileNotifier extends _$UserProfileNotifier {
 
   @override
   Future<UserProfile?> build() async {
-    return null; // Initially, we don't have user profile data
+    final authUser = ref.read(authProvider).value;
+    if (authUser != null) {
+      final result = await _userProfileService.getUserProfile(authUser.$id);
+      if (result.isSuccess) {
+        return result.resultValue;
+      } else {
+        throw Exception(result.errorMessage);
+      }
+    }
+    return null;
   }
 
   Future<void> createUserProfile(UserProfile profile) async {

@@ -1,7 +1,9 @@
 import 'package:appwrite/models.dart' as models;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../services/auth_service.dart';
 import '../utils/provider.dart';
+import '../models/user_profile_model.dart';
+import '../services/auth_service.dart';
+import 'user_profile_provider.dart';
 
 part 'auth_provider.g.dart';
 
@@ -9,6 +11,8 @@ part 'auth_provider.g.dart';
 class Auth extends _$Auth {
   late final AuthService _authService =
       AuthService(account: ref.read(appwriteAccountProvider));
+  late final UserProfileNotifier _userProfileNotifier =
+      ref.read(userProfileNotifierProvider.notifier);
 
   @override
   Future<models.User?> build() async {
@@ -26,14 +30,32 @@ class Auth extends _$Auth {
     }
   }
 
-  Future<void> register(String email, String password, String name) async {
+  Future<void> register(
+      String email, String password, String nama,String nomor,String alamat, String kota, String provinsi, String kodepos,) async {
     state = const AsyncValue.loading();
-    final result = await _authService.createAccount(
-        email: email, password: password, name: name);
-    if (result.isSuccess) {
+
+    final authResult =
+        await _authService.createAccount(email: email, password: password, name: nama);
+
+    if (authResult.isSuccess) {
+      final userId = authResult.resultValue?.$id ?? '';
+      final userProfile = UserProfile(
+        id: userId,
+        nama: nama,
+        email: email,
+        nomor: nomor,
+        alamat: alamat,
+        kota: kota,
+        provinsi: provinsi,
+        kodePos: kodepos,
+        logo: 'kosong',
+      );
+
+      await _userProfileNotifier.createUserProfile(userProfile);
+
       await login(email, password);
     } else {
-      state = AsyncValue.error(result.errorMessage!, StackTrace.current);
+      state = AsyncValue.error(authResult.errorMessage!, StackTrace.current);
       resetState();
     }
   }
@@ -57,22 +79,17 @@ class Auth extends _$Auth {
 
   Future<models.User?> checkSession() async {
     try {
-      // Get the current session
       final sessionResult = await _authService.getCurrentSession();
 
       if (sessionResult.isSuccess) {
-        // If there's an active session, fetch the user details
         final userResult = await _authService.getCurrentUser();
         if (userResult.isSuccess) {
-          return userResult.resultValue; // Return the user directly from build
+          return userResult.resultValue; 
         }
       }
     } catch (e) {
-      // Handle any errors (e.g., network issues, session expired)
       print('Error checking session: $e');
     }
-
-    // Return null if there's no active session or if an error occurred
     return null;
   }
 }

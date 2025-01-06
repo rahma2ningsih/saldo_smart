@@ -10,11 +10,12 @@ class UserProfileService {
 
   Future<Result<UserProfile>> createUserProfile(UserProfile profile) async {
     try {
+      final jsonForCreate = toJsonForCreate(profile);
       final document = await _db.createDocument(
         databaseId: dotenv.env['APPWRITE_DATABASE_ID']!,
         collectionId: dotenv.env['APPWRITE_USER_PROFILE_COLLECTION_ID']!,
-        documentId: profile.userId,
-        data: profile.toJson(),
+        documentId: profile.id,
+        data: jsonForCreate,
       );
       return Result.success(UserProfile.fromJson(document.data));
     } catch (e) {
@@ -29,7 +30,11 @@ class UserProfileService {
         collectionId: dotenv.env['APPWRITE_USER_PROFILE_COLLECTION_ID']!,
         documentId: userId,
       );
-      return Result.success(UserProfile.fromJson(document.data));
+      final Map<String, dynamic> data =
+          Map<String, dynamic>.from(document.data);
+      data['id'] = data['\$id'];
+      data.remove('\$id');
+      return Result.success(UserProfile.fromJson(data));
     } catch (e) {
       return Result.failed(e.toString());
     }
@@ -40,7 +45,7 @@ class UserProfileService {
       final document = await _db.updateDocument(
         databaseId: dotenv.env['APPWRITE_DATABASE_ID']!,
         collectionId: dotenv.env['APPWRITE_USER_PROFILE_COLLECTION_ID']!,
-        documentId: profile.userId,
+        documentId: profile.id,
         data: profile.toJson(),
       );
       return Result.success(UserProfile.fromJson(document.data));

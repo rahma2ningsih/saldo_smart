@@ -8,34 +8,26 @@ part of 'user_profile_model.dart';
 
 _$UserProfileImpl _$$UserProfileImplFromJson(Map<String, dynamic> json) =>
     _$UserProfileImpl(
-      userId: json['userId'] as String,
-      phoneNumber: json['phoneNumber'] as String?,
-      dateOfBirth: json['dateOfBirth'] == null
-          ? null
-          : DateTime.parse(json['dateOfBirth'] as String),
-      profilePictureUrl: json['profilePictureUrl'] as String?,
-      bio: json['bio'] as String?,
-      interests: (json['interests'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      location: json['location'] as String?,
-      joinDate: json['joinDate'] == null
-          ? null
-          : DateTime.parse(json['joinDate'] as String),
-      additionalInfo:
-          json['additionalInfo'] as Map<String, dynamic>? ?? const {},
+      id: json['id'] as String,
+      nama: json['nama'] as String,
+      email: json['email'] as String,
+      nomor: json['nomor'] as String,
+      alamat: json['alamat'] as String,
+      kota: json['kota'] as String,
+      provinsi: json['provinsi'] as String,
+      kodePos: json['kodePos'] as String,
+      logo: json['logo'] as String,
     );
 
 Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
     <String, dynamic>{
-      'userId': instance.userId,
-      'phoneNumber': instance.phoneNumber,
-      'dateOfBirth': instance.dateOfBirth?.toIso8601String(),
-      'profilePictureUrl': instance.profilePictureUrl,
-      'bio': instance.bio,
-      'interests': instance.interests,
-      'location': instance.location,
-      'joinDate': instance.joinDate?.toIso8601String(),
-      'additionalInfo': instance.additionalInfo,
+      'id': instance.id,
+      'nama': instance.nama,
+      'email': instance.email,
+      'nomor': instance.nomor,
+      'alamat': instance.alamat,
+      'kota': instance.kota,
+      'provinsi': instance.provinsi,
+      'kodePos': instance.kodePos,
+      'logo': instance.logo,
     };

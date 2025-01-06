@@ -1,74 +1,149 @@
+import 'package:appwrite/models.dart' as models;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/user_profile_provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/user_profile_model.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/user_profile_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfileAsyncValue = ref.watch(userProfileNotifierProvider);
+    final authState = ref.watch(authProvider);
+    final userProfileState = ref.watch(userProfileNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('User Profile')),
-      body: userProfileAsyncValue.when(
-        data: (profile) => profile != null
-            ? _buildProfileView(context, profile, ref)
-            : const Center(child: Text('No profile data')),
+      appBar: AppBar(
+        title: const Text('Profile'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              ref.read(authProvider.notifier).logout();
+              context.go('/login');
+            },
+          ),
+        ],
+      ),
+      body: authState.when(
+        data: (user) {
+          if (user == null) {
+            return const Center(child: Text('Not logged in'));
+          }
+
+          return userProfileState.when(
+            data: (profile) => _buildDashboardContent(context, user, profile),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stackTrace) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: $error'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      ref.refresh(userProfileNotifierProvider);
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(child: Text('Error: $error')),
+        error: (error, _) => Center(child: Text('Error: $error')),
       ),
     );
   }
 
-  Widget _buildProfileView(
-      BuildContext context, UserProfile profile, WidgetRef ref) {
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: [
-        CircleAvatar(
-          radius: 50,
-          backgroundImage: profile.profilePictureUrl != null
-              ? NetworkImage(profile.profilePictureUrl!)
-              : null,
-          child: profile.profilePictureUrl == null
-              ? const Icon(Icons.person, size: 50)
-              : null,
-        ),
-        const SizedBox(height: 16),
-        Text(profile.userId, style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: 16),
-        _buildInfoTile('Phone', profile.phoneNumber),
-        _buildInfoTile(
-            'Date of Birth', profile.dateOfBirth?.toString().split(' ')[0]),
-        _buildInfoTile('Location', profile.location),
-        _buildInfoTile('Bio', profile.bio),
-        _buildInfoTile('Interests', profile.interests.join(', ')),
-        _buildInfoTile('Join Date', profile.joinDate?.toString().split(' ')[0]),
-        ElevatedButton(
-          onPressed: () {
-            // TODO: Navigate to edit profile screen
-          },
-          child: const Text('Edit Profile'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInfoTile(String title, String? value) {
+  Widget _buildDashboardContent(
+    BuildContext context,
+    models.User user,
+    UserProfile? profile,
+  ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-              width: 100,
-              child: Text(title,
-                  style: const TextStyle(fontWeight: FontWeight.bold))),
-          Expanded(child: Text(value ?? 'Not provided')),
+          Text(
+            'Welcome, ${user.name}!',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Your Profile:',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          if (profile != null) ...[
+            _buildProfileInfo(profile),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => context.push('/profile/edit'), // Add this route
+              child: const Text('Edit Profile'),
+            ),
+          ] else ...[
+            const Text(
+              'You haven\'t set up your profile yet.',
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => context.push('/profile/create'), // Add this route
+              child: const Text('Create Profile'),
+            ),
+          ],
         ],
       ),
     );
   }
+
+  Widget _buildProfileInfo(UserProfile profile) {
+  return Card(
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Name: ${profile.nama}'),
+          const SizedBox(height: 8),
+          Text('Email: ${profile.email}'),
+          const SizedBox(height: 8),
+          Text('Phone: ${profile.nomor}'),
+          const SizedBox(height: 8),
+          Text('Address: ${profile.alamat}'),
+          const SizedBox(height: 8),
+          Text('City: ${profile.kota}'),
+          const SizedBox(height: 8),
+          Text('Province: ${profile.provinsi}'),
+          const SizedBox(height: 8),
+          Text('Postal Code: ${profile.kodePos}'),
+          const SizedBox(height: 16),
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: profile.logo != ''
+                  ? Image.network(
+                      profile.logo,
+                      height: 120,
+                      width: 120,
+                      fit: BoxFit.cover,
+                    )
+                  : Icon(
+                      Icons.person,
+                      size: 120,
+                      color: Colors.grey.shade400,
+                    ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 }
